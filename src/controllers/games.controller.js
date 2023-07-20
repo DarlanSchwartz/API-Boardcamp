@@ -14,7 +14,7 @@ export async function getGames(req,res)
 export async function createGame(req, res) {
     const { name, image, stockTotal, pricePerDay } = req.body;
     try {
-        await db.query(`INSERT INTO customers (name, image, stockTotal, pricePerDay) VALUES ($1, $2, $3, $4)`,[name,image,stockTotal,pricePerDay]);
+        await db.query(`INSERT INTO games ("name", "image", "stockTotal", "pricePerDay") VALUES ($1, $2, $3, $4);`,[name,image,stockTotal,pricePerDay]);
         return res.sendStatus(201);
     } catch (error) {
         console.log(error.message);

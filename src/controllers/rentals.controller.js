@@ -5,8 +5,30 @@ import db from "../database/database.connection.js";
 export async function getRentals(req,res)
 {
     try {
-        const rentals = await db.query(`SELECT * FROM rentals;`);
-        return res.send(rentals.rows);
+        const rentals = await db.query(`SELECT rentals.*, games.name AS "gameName", customers.name AS "customerName" FROM rentals
+        JOIN customers ON rentals."customerId" = customers.id
+        JOIN games ON rentals."gameId" = games.id;`);
+
+        const allRentals = rentals.rows.map((rent) => {
+
+            const rentalResponse = {
+                ...rent,
+                customer: {
+                    id: rent.customerId,
+                    name: rent.customerName
+                },
+                game: {
+                    id: rent.gameId,
+                    name: rent.gameName
+                }
+            }
+
+            delete rentalResponse.customerName;
+            delete rentalResponse.gameName;
+            return rentalResponse;
+        })
+
+        return res.send(allRentals);
     } catch (error) {
         console.log(error.message);
         return res.status(500).send(error.message);
@@ -50,10 +72,10 @@ export async function finishRental(req,res)
         
         let delayFee = null;
 
-        const difference = dayjs().diff(dayjs(rentDate), 'days');
+        const daysDifference = dayjs().diff(dayjs(rentDate), 'days');
     
-        if (difference > daysRented) {
-            delayFee = pricePerDay * (difference - daysRented);
+        if (daysDifference > daysRented) {
+            delayFee = pricePerDay * (daysDifference - daysRented);
         }
 
         await db.query(`UPDATE rentals SET "returnDate" = $1, "delayFee" = $2 WHERE id = $3;`,[dayjs().format('YYYY-MM-DD'),delayFee,id]);

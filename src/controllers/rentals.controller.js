@@ -1,7 +1,7 @@
 import dayjs from "dayjs";
 import db from "../database/database.connection.js";
 
-function startDateFilter(startDate) {
+function helperStartDateFilter(startDate) {
     if (startDate) {
         return 'rentals.rentDate >= $1';
     }
@@ -9,7 +9,7 @@ function startDateFilter(startDate) {
 }
 
 // Função auxiliar para construir a cláusula de filtro por status
-function statusFilter(status) {
+function helperStatusFilter(status) {
     if (status === 'open') {
         return 'rentals.returnDate IS NULL';
     } else if (status === 'closed') {
@@ -49,7 +49,7 @@ export async function getRentals(req, res) {
 
         // Handle status filter
         if (status) {
-            const statusFilter = statusFilter(status);
+            const statusFilter = helperStatusFilter(status);
             if (statusFilter) {
                 query += query.includes('WHERE') ? ' AND ' : ' WHERE ';
                 query += statusFilter;
@@ -58,7 +58,7 @@ export async function getRentals(req, res) {
 
         // Handle start date filter
         if (startDate) {
-            const startDateFilter = startDateFilter(startDate);
+            const startDateFilter = helperStartDateFilter(startDate);
             if (startDateFilter) {
                 query += query.includes('WHERE') ? ' AND ' : ' WHERE ';
                 query += startDateFilter;

@@ -40,11 +40,19 @@ export async function createRental(req,res)
     const {customerId,gameId,daysRented} = req.body;
 
     try {
+
+        if(!daysRented || daysRented <= 0) return res.status(400).send("O campo daysRented tem que ser maior que 0!");
+
         const customers = await db.query(`SELECT * FROM customers WHERE id=$1;`, [customerId]);
         if (customers.rowCount === 0) return res.status(400).send("Cliente inexistente!");
 
         const game = await db.query(`SELECT * FROM games WHERE id=$1;`,[gameId]);
         if(!game.rows[0]) return res.status(400).send("Jogo inexistente!");
+
+        const rentalCountResult = await db.query('SELECT COUNT(*) FROM rentals WHERE gameId = $1 AND returnDate IS NULL;',[gameId]);
+        const rentalCount = parseInt(rentalCountResult.rows[0].count, 10);
+
+        if (rentalCount >= game.stocktotal) return res.status(400).send('Todos os jogos ja foram alugados!')
 
         const pricePerDay  = game.rows[0].pricePerDay;
 
@@ -65,7 +73,7 @@ export async function finishRental(req,res)
     if(!id || id == '') return res.sendStatus(404);
        
     try { 
-        const rental = await db.query(`SELECT * FROM rentals WHERE id=$1`, [id]);
+        const rental = await db.query(`SELECT * FROM rentals WHERE id=$1;`, [id]);
         if (rental.rowCount === 0) return res.status(404).send("Aluguel não existe!");
         if (rental.rows[0].returnDate !== null) return res.status(400).send("Esse aluguel ja foi devolvido!");
     

@@ -2,11 +2,15 @@ import dayjs from "dayjs";
 import db from "../database/database.connection.js"
 
 export async function getCustomers(req, res) {
-    const { offset, limit, order, desc } = req.query;
+    const { offset, limit, order, desc,cpf } = req.query;
 
     try {
 
         let query = 'SELECT * FROM customers';
+
+        if (cpf) {
+            query += ` WHERE cpf LIKE '${cpf}%'`;
+          }
         
         if (order) {
             query += ` ORDER BY ${order}`;
@@ -17,9 +21,10 @@ export async function getCustomers(req, res) {
 
         if (limit) {
             query += ` LIMIT ${limit}`;
-            if (offset) {
-                query += ` OFFSET ${offset}`;
-            }
+        }
+        
+        if (offset) {
+            query += ` OFFSET ${offset}`;
         }
 
         const customers = await db.query(query, []);

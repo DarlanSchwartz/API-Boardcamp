@@ -185,6 +185,7 @@ export async function deleteRental(req, res) {
     try {
         const rental = await db.query(`SELECT * FROM rentals WHERE id=$1;`, [id]);
         if (rental.rowCount === 0) return res.status(404).send("Aluguel não existe!");
+        if(rental.rows[0].returnDate !== null) return res.sendStatus(400);
         await db.query(`DELETE FROM rentals WHERE id=$1;`, [id]);
         return res.sendStatus(200);
     } catch (error) {

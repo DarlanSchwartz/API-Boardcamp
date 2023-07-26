@@ -87,6 +87,8 @@ export async function getRentals(req, res) {
         const allRentals = rentals.rows.map((rent) => {
             const rentalResponse = {
                 ...rent,
+                returnDate: rent.returnDate == null ? null : dayjs(rent.returnDate).format('YYYY-MM-DD'),
+                rentDate: dayjs(rent.rentDate).format('YYYY-MM-DD'),
                 customer: {
                     id: rent.customerId,
                     name: rent.customerName

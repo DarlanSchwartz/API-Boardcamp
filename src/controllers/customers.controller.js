@@ -1,3 +1,4 @@
+import dayjs from "dayjs";
 import db from "../database/database.connection.js"
 
 export async function getCustomers(req, res) {
@@ -22,6 +23,9 @@ export async function getCustomers(req, res) {
         }
 
         const customers = await db.query(query, []);
+        customers.rows.forEach(customer =>{
+            customer.birthday = dayjs(customer.birthday).format('YYYY-MM-DD');
+        });
         return res.send(customers.rows);
     } catch (error) {
         return res.status(500).send(error.message);
@@ -33,9 +37,8 @@ export async function getCustomerById(req, res) {
 
     try {
         const customer = await db.query(`SELECT * FROM customers WHERE id=$1;`, [id]);
-
         if (!customer.rows[0]) return res.status(404).send('Usuário não existe!');
-
+        customer.rows[0].birthday = dayjs(customer.rows[0].birthday).format('YYYY-MM-DD');
         return res.send(customer.rows[0]);
     } catch (error) {
         return res.status(500).send(error.message);

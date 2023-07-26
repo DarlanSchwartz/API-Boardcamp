@@ -126,14 +126,17 @@ export async function createRental(req, res) {
         if (!game.rows[0]) return res.status(400).send("Jogo inexistente!");
 
         const rentalCountResult = await db.query(`SELECT COUNT(*) FROM rentals WHERE "gameId" = $1 AND "returnDate" IS NULL;`, [gameId]);
-        const rentalCount = parseInt(rentalCountResult.rows[0].count, 10);
+        const rentalCount = Number(rentalCountResult.rows[0].count);
 
-        if (rentalCount >= game.stocktotal) return res.status(400).send('Todos os jogos ja foram alugados!')
+        if (game.rows[0].stockTotal <=0 || rentalCount >= game.rows[0].stockTotal) return res.status(400).send('Todos os jogos ja foram alugados!');
+        await db.query(`UPDATE games SET "stockTotal" = "stockTotal" - 1 WHERE id = $1`, [gameId]);
 
         const pricePerDay = game.rows[0].pricePerDay;
 
         await db.query(`INSERT INTO rentals ("customerId", "gameId", "daysRented", "rentDate", "originalPrice", "returnDate", "delayFee") VALUES ($1, $2, $3, $4, $5, null, null);`
             , [customerId, gameId, daysRented, dayjs().format('YYYY-MM-DD'), pricePerDay * daysRented]);
+
+
 
         return res.sendStatus(201);
     } catch (error) {

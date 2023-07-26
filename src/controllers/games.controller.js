@@ -15,7 +15,7 @@ export async function getGames(req, res) {
         }
 
         if (order) {
-            query += ` ORDER BY ${order.toUpperCase()}`;
+            query += ` ORDER BY "${order}"`;
             if (desc && desc.toLowerCase() === 'true') {
                 query += ' DESC';
             }
@@ -23,9 +23,10 @@ export async function getGames(req, res) {
 
         if (limit) {
             query += ` LIMIT ${limit}`;
-            if (offset) {
-                query += ` OFFSET ${offset}`;
-            }
+        }
+
+        if (offset) {
+            query += ` OFFSET ${offset}`;
         }
 
         const games = await db.query(query, queryParams);

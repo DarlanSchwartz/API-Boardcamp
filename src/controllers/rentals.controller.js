@@ -98,8 +98,6 @@ export async function getRentals(req, res) {
                     name: rent.gameName
                 }
             };
-
-            delete rentalResponse.gameId;
             delete rentalResponse.customerName;
             delete rentalResponse.gameName;
 

@@ -3,7 +3,7 @@ import db from "../database/database.connection.js";
 
 function helperStartDateFilter(startDate) {
     if (startDate) {
-        return 'rentals.rentDate >= $1';
+        return 'rentals."rentDate" >= $1';
     }
     return '';
 }
@@ -11,9 +11,9 @@ function helperStartDateFilter(startDate) {
 // Função auxiliar para construir a cláusula de filtro por status
 function helperStatusFilter(status) {
     if (status === 'open') {
-        return 'rentals.returnDate IS NULL';
+        return 'rentals."returnDate" IS NULL';
     } else if (status === 'closed') {
-        return 'rentals.returnDate IS NOT NULL';
+        return 'rentals."returnDate" IS NOT NULL';
     }
     return '';
 }
